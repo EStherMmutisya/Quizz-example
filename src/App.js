@@ -1,3 +1,5 @@
+// App.js
+
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
@@ -10,13 +12,13 @@ import { useFormik } from 'formik';
 function App() {
   const [questions, setQuestions] = useState([]);
   const [score, setScore] = useState(0);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
   const formik = useFormik({
     initialValues: {
       answers: {},
     },
-    onSubmit: (e) => {
-      e.preventDefault();
+    onSubmit: () => {
       // Calculate the score based on selected answers
       const newScore = Object.values(formik.values.answers).reduce(
         (acc, answer) => (answer ? acc + 1 : acc),
@@ -47,6 +49,14 @@ function App() {
     }
   };
 
+  const handleNextQuestion = () => {
+    setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
+  };
+
+  const handlePrevQuestion = () => {
+    setCurrentQuestionIndex((prevIndex) => prevIndex - 1);
+  };
+
   useEffect(() => {
     fetchQuestions();
   }, []);
@@ -65,7 +75,13 @@ function App() {
             path="/questions"
             element={
               questions?.length > 0 ? (
-                <Question questions={questions} formik={formik} />
+                <Question
+                  questions={questions}
+                  formik={formik}
+                  currentQuestionIndex={currentQuestionIndex}
+                  onNext={handleNextQuestion}
+                  onPrev={handlePrevQuestion}
+                />
               ) : <p>No questions available.</p>
             }
           />
