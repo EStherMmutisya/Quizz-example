@@ -2,6 +2,7 @@ import React from 'react';
 
 function Question({ questions, formik }) {
   console.log('questions:', questions);
+  console.log('formik values:', formik.values);
 
   if (!questions || questions.length === 0) {
     // Render loading state or a message indicating that questions are being fetched
@@ -35,5 +36,3 @@ function Question({ questions, formik }) {
 }
 
 export default Question;
-
-

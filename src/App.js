@@ -15,7 +15,8 @@ function App() {
     initialValues: {
       answers: {},
     },
-    onSubmit: () => {
+    onSubmit: (e) => {
+      e.preventDefault();
       // Calculate the score based on selected answers
       const newScore = Object.values(formik.values.answers).reduce(
         (acc, answer) => (answer ? acc + 1 : acc),
@@ -28,35 +29,51 @@ function App() {
   const fetchQuestions = async () => {
     try {
       const response = await fetch('http://localhost:3000/questions/');
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
       const data = await response.json();
-      setQuestions(data.questions);
+      console.log('Fetched data:', data);
+
+      // Check if the fetched data is an array
+      if (Array.isArray(data)) {
+        setQuestions(data);
+      } else {
+        console.error('Invalid data format. Expected an array.');
+      }
     } catch (error) {
       console.error('Error fetching questions:', error);
     }
   };
-  
+
   useEffect(() => {
     fetchQuestions();
   }, []);
-  
+
+  useEffect(() => {
+    console.log('Updated Questions:', questions);
+    console.log('Updated Formik Values:', formik.values);
+  }, [questions, formik.values]);
 
   return (
     <Router>
       <div>
         <Navbar />
         <Routes>
-        <Route
-  path="/questions"
-  element={
-    questions?.length > 0 ? (
-      <Question questions={questions} formik={formik} />
-    ) : null
-  }
-/>
-
+          <Route
+            path="/questions"
+            element={
+              questions?.length > 0 ? (
+                <Question questions={questions} formik={formik} />
+              ) : <p>No questions available.</p>
+            }
+          />
           <Route path="/score" element={<Score score={score} />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/about" element={<About />} />
+          {/* Add a route for the root path if needed */}
+          <Route path="/" element={<p>Welcome to the Quiz App!</p>} />
         </Routes>
       </div>
     </Router>
